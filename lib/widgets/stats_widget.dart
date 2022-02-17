@@ -162,7 +162,7 @@ class _StatsWidgetState extends State<StatsWidget> {
                       height: 8,
                     ),
                     Text(
-                      '\$${monthlyTransactions.filteredMonthlyExpenses(activeMonth - date.month).toStringAsFixed(2)}',
+                      '\$${monthlyTransactions.filteredMonthlyExpenses(activeMonth - date.month)}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,

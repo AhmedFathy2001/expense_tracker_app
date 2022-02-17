@@ -14,6 +14,7 @@ class CreateTransactionPage extends StatefulWidget {
 
 class _CreateTransactionPageState extends State<CreateTransactionPage> {
   int activeCategory = 0;
+  var _selectedDate = DateTime.now();
   final _transactionTitle = TextEditingController();
   final _transactionAmount = TextEditingController(text: "\$");
   @override
@@ -24,9 +25,43 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
     );
   }
 
+  void _saveNewProduct(transactions) {
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    try {
+      transactions.addNewTransaction(
+          _transactionTitle.text.trim(),
+          double.parse(_transactionAmount.text
+              .trim()
+              .substring(1, _transactionAmount.text.trim().length)),
+          _selectedDate);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Transaction added successfully.',
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.green,
+        ),
+      );
+      setState(() {
+        _transactionTitle.clear();
+        _transactionAmount.text = '\$';
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Failed to save transaction.',
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Widget getBody() {
     final _transactions = Provider.of<DailyTransactions>(context);
-    var _selectedDate = DateTime.now();
     var size = MediaQuery.of(context).size;
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
@@ -68,6 +103,7 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                   TextField(
                     controller: _transactionTitle,
                     cursorColor: black,
+                    textInputAction: TextInputAction.next,
                     style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -104,6 +140,10 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                                   color: black),
                               keyboardType:
                                   const TextInputType.numberWithOptions(),
+                              textInputAction: TextInputAction.done,
+                              onSubmitted: (_) {
+                                _saveNewProduct(_transactions);
+                              },
                               decoration: const InputDecoration(
                                   hintText: "Enter Transaction Amount",
                                   border: InputBorder.none),
@@ -116,39 +156,8 @@ class _CreateTransactionPageState extends State<CreateTransactionPage> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                          try {
-                            _transactions.addNewTransaction(
-                                _transactionTitle.text.trim(),
-                                double.parse(_transactionAmount.text
-                                    .trim()
-                                    .substring(1,
-                                        _transactionAmount.text.trim().length)),
-                                _selectedDate);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Transaction added successfully.',
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                            setState(() {
-                              _transactionTitle.clear();
-                              _transactionAmount.text = '\$';
-                            });
-                          } catch (error) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Failed to save transaction.',
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
+                          _saveNewProduct(_transactions);
+                          FocusManager.instance.primaryFocus?.unfocus();
                         },
                         child: Container(
                           width: 50,

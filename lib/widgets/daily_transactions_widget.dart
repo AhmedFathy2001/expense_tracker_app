@@ -155,15 +155,20 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20),
               child: Column(
-                children: ((widget.weekClick &&
+                children: (widget.weekClick &&
                             expense
                                 .filteredDailyExpensesBasedOnSelectedWeek(
-                                    ((widget.selectedWeek! * 7) - activeDay),
+                                    ((widget.selectedWeek == 5
+                                            ? (DateTime(DateTime.now().year,
+                                                    widget.selectedMonth!, 0)
+                                                .day)
+                                            : (widget.selectedWeek! * 7)) -
+                                        activeDay),
                                     widget.selectedMonth!,
                                     widget.selectedWeek!)
                                 .isEmpty) ||
                         (!widget.weekClick &&
-                            expense.filteredDailyExpenses(activeDay).isEmpty))
+                            expense.filteredDailyExpenses(activeDay).isEmpty)
                     ? [
                         const Center(
                           child: Text(
@@ -172,21 +177,38 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                       ]
                     : List.generate(
                         widget.weekClick
-                            ? expense
-                                .filteredDailyExpensesBasedOnSelectedWeek(
-                                    ((widget.selectedWeek! * 7) - activeDay),
-                                    widget.selectedMonth!,
-                                    widget.selectedWeek!)
-                                .length
+                            ? ((widget.selectedWeek == 5)
+                                ? (expense
+                                    .filteredDailyExpensesBasedOnSelectedWeek(
+                                        DateTime(DateTime.now().year,
+                                                    widget.selectedMonth!, 0)
+                                                .day -
+                                            activeDay,
+                                        widget.selectedMonth!,
+                                        widget.selectedWeek!)
+                                    .length)
+                                : (expense
+                                    .filteredDailyExpensesBasedOnSelectedWeek(
+                                        ((widget.selectedWeek! * 7) -
+                                            activeDay),
+                                        widget.selectedMonth!,
+                                        widget.selectedWeek!)
+                                    .length))
                             : expense.filteredDailyExpenses(activeDay).length,
                         (index) {
                           return Dismissible(
                             direction: DismissDirection.endToStart,
                             key: UniqueKey(),
                             onDismissed: (dismissDirection) {
-                              expense.deleteTransaction(expense
-                                  .filteredDailyExpenses(activeDay)[index]
-                                  .id);
+                              widget.weekClick
+                                  ? expense.deleteTransaction(expense
+                                      .filterTransactionsBasedOnWeek(
+                                          widget.selectedMonth!,
+                                          widget.selectedWeek!)[index]
+                                      .id)
+                                  : expense.deleteTransaction(expense
+                                      .filteredDailyExpenses(activeDay)[index]
+                                      .id);
                             },
                             background: Container(
                               margin: const EdgeInsets.symmetric(
@@ -224,17 +246,29 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                                               children: [
                                                 Text(
                                                   widget.weekClick
-                                                      ? expense
-                                                          .filteredDailyExpensesBasedOnSelectedWeek(
-                                                              ((widget.selectedWeek! *
-                                                                      7) -
-                                                                  activeDay),
-                                                              widget
-                                                                  .selectedMonth!,
-                                                              widget
-                                                                  .selectedWeek!)[
-                                                              index]
-                                                          .title
+                                                      ? widget.selectedWeek == 5
+                                                          ? expense
+                                                              .filteredDailyExpensesBasedOnSelectedWeek(
+                                                                  DateTime(DateTime.now().year, widget.selectedMonth!, 0)
+                                                                          .day -
+                                                                      activeDay,
+                                                                  widget
+                                                                      .selectedMonth!,
+                                                                  widget
+                                                                      .selectedWeek!)[
+                                                                  index]
+                                                              .title
+                                                          : (expense
+                                                              .filteredDailyExpensesBasedOnSelectedWeek(
+                                                                  ((widget.selectedWeek! *
+                                                                          7) -
+                                                                      activeDay),
+                                                                  widget
+                                                                      .selectedMonth!,
+                                                                  widget
+                                                                      .selectedWeek!)[
+                                                                  index]
+                                                              .title)
                                                       : expense
                                                           .filteredDailyExpenses(
                                                               activeDay)[index]
@@ -251,17 +285,29 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                                                 Text(
                                                   DateFormat.yMMMd().format(widget
                                                           .weekClick
-                                                      ? expense
-                                                          .filteredDailyExpensesBasedOnSelectedWeek(
-                                                              ((widget.selectedWeek! *
-                                                                      7) -
-                                                                  activeDay),
-                                                              widget
-                                                                  .selectedMonth!,
-                                                              widget
-                                                                  .selectedWeek!)[
-                                                              index]
-                                                          .createdAt
+                                                      ? widget.selectedWeek == 5
+                                                          ? expense
+                                                              .filteredDailyExpensesBasedOnSelectedWeek(
+                                                                  DateTime(DateTime.now().year, widget.selectedMonth!, 0)
+                                                                          .day -
+                                                                      activeDay,
+                                                                  widget
+                                                                      .selectedMonth!,
+                                                                  widget
+                                                                      .selectedWeek!)[
+                                                                  index]
+                                                              .createdAt
+                                                          : (expense
+                                                              .filteredDailyExpensesBasedOnSelectedWeek(
+                                                                  ((widget.selectedWeek! *
+                                                                          7) -
+                                                                      activeDay),
+                                                                  widget
+                                                                      .selectedMonth!,
+                                                                  widget
+                                                                      .selectedWeek!)[
+                                                                  index]
+                                                              .createdAt)
                                                       : expense
                                                           .filteredDailyExpenses(
                                                               activeDay)[index]
@@ -288,7 +334,7 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                                             MainAxisAlignment.end,
                                         children: [
                                           Text(
-                                            '\$${widget.weekClick ? expense.filteredDailyExpensesBasedOnSelectedWeek(((widget.selectedWeek! * 7) - activeDay), widget.selectedMonth!, widget.selectedWeek!)[index].amount : expense.filteredDailyExpenses(activeDay)[index].amount}',
+                                            '\$${widget.weekClick ? expense.filteredDailyExpensesBasedOnSelectedWeek(((widget.selectedWeek == 5 ? (DateTime(DateTime.now().year, widget.selectedMonth!, 0).day - index) : (widget.selectedWeek! * 7)) - activeDay), widget.selectedMonth!, widget.selectedWeek!)[index].amount : expense.filteredDailyExpenses(activeDay)[index].amount}',
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 15,
@@ -318,7 +364,12 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
             if ((widget.weekClick &&
                     expense
                         .filteredDailyExpensesBasedOnSelectedWeek(
-                            ((widget.selectedWeek! * 7) - activeDay),
+                            ((widget.selectedWeek == 5
+                                    ? (DateTime(DateTime.now().year,
+                                            widget.selectedMonth!, 0)
+                                        .day)
+                                    : (widget.selectedWeek! * 7)) -
+                                activeDay),
                             widget.selectedMonth!,
                             widget.selectedWeek!)
                         .isNotEmpty) ||
@@ -344,7 +395,7 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                     Padding(
                       padding: const EdgeInsets.only(top: 5, bottom: 25),
                       child: Text(
-                        "\$${widget.weekClick ? expense.totalSpentPerDay(widget.selectedMonth! - 1, (widget.selectedWeek! * 7 - activeDay)) : expense.totalSpentPerDay(DateTime.now().month, (DateTime.now().day - activeDay))}",
+                        "\$${widget.weekClick ? expense.totalSpentPerDay(widget.selectedMonth! - 1, ((widget.selectedWeek == 5 ? DateTime(DateTime.now().year, widget.selectedMonth!, 0).day : (widget.selectedWeek! * 7)) - activeDay)) : expense.totalSpentPerDay(DateTime.now().month, (DateTime.now().day - activeDay))}",
                         style: const TextStyle(
                             fontSize: 20,
                             color: black,

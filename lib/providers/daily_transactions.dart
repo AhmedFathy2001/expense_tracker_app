@@ -12,6 +12,7 @@ class DailyTransactions with ChangeNotifier {
   List<Transaction> _transactionsList = [];
   void initTransactions() async {
     final prefs = await _prefs;
+    prefs.clear();
     if (isInit) {
       if (prefs.containsKey('transactions')) {
         for (var i = 0;
@@ -46,7 +47,7 @@ class DailyTransactions with ChangeNotifier {
         .toList();
   }
 
-  double totalSpentPerDay(int currentMonth, int currentDay) {
+  String totalSpentPerDay(int currentMonth, int currentDay) {
     final weekDay = DateTime(DateTime.now().year, currentMonth, currentDay);
     var totalPerDay = 0.0;
     for (var tx in _transactionsList) {
@@ -56,7 +57,7 @@ class DailyTransactions with ChangeNotifier {
         totalPerDay += tx.amount;
       }
     }
-    return totalPerDay;
+    return totalPerDay.toStringAsFixed(2);
   }
 
   List<Transaction> filteredDailyExpensesBasedOnSelectedWeek(
@@ -74,6 +75,7 @@ class DailyTransactions with ChangeNotifier {
         if (tx.createdAt.day == weekDays.day - j &&
             tx.createdAt.month == weekDays.month &&
             tx.createdAt.year == weekDays.year) {
+          print(weekDays.day - j);
           filteredTxPerWeek.add(tx);
           totalPerWeek += tx.amount;
         }
@@ -81,6 +83,7 @@ class DailyTransactions with ChangeNotifier {
     }
     List<Transaction> newList = [];
     if (filteredTxPerWeek.isEmpty) {
+      print('empty');
       return [];
     }
     final weekDay =
@@ -93,12 +96,13 @@ class DailyTransactions with ChangeNotifier {
         newList.add(tx);
       }
     }
+    print('${newList.length} .. list length');
     return newList;
   }
 
-  double filteredMonthlyExpenses(int currentMonth) {
+  String filteredMonthlyExpenses(int currentMonth) {
     if (_transactionsList.isEmpty) {
-      return 0;
+      return '0';
     }
     final month = DateTime(DateTime.now().year, currentMonth, 0);
     final filteredList = [..._transactionsList]
@@ -110,7 +114,7 @@ class DailyTransactions with ChangeNotifier {
     for (var transaction in filteredList) {
       totalMonthlySpent += transaction.amount;
     }
-    return totalMonthlySpent;
+    return totalMonthlySpent.toStringAsFixed(2);
   }
 
   int getWeeksOfMonth(int currentMonth) {
@@ -122,9 +126,9 @@ class DailyTransactions with ChangeNotifier {
     return 4;
   }
 
-  double getTotalPerWeek(int currentMonth, int currentWeek) {
+  String getTotalPerWeek(int currentMonth, int currentWeek) {
     filterTransactionsBasedOnWeek(currentMonth, currentWeek);
-    return totalPerWeek;
+    return totalPerWeek.toStringAsFixed(2);
   }
 
   List<Transaction> filterTransactionsBasedOnWeek(
