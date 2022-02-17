@@ -52,7 +52,6 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                     color: grey.withOpacity(0.01),
                     spreadRadius: 10,
                     blurRadius: 3,
-                    // changes position of shadow
                   ),
                 ],
               ),

@@ -29,8 +29,7 @@ class _StatsWidgetState extends State<StatsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final monthlyTransactions =
-        Provider.of<DailyTransactions>(context, listen: false);
+    final monthlyTransactions = Provider.of<DailyTransactions>(context);
     var size = MediaQuery.of(context).size;
 
     return SafeArea(
@@ -126,7 +125,6 @@ class _StatsWidgetState extends State<StatsWidget> {
                       color: grey.withOpacity(0.01),
                       spreadRadius: 10,
                       blurRadius: 3,
-                      // changes position of shadow
                     ),
                   ]),
               child: Padding(
@@ -210,7 +208,6 @@ class _StatsWidgetState extends State<StatsWidget> {
                               color: grey.withOpacity(0.01),
                               spreadRadius: 10,
                               blurRadius: 3,
-                              // changes position of shadow
                             ),
                           ]),
                       child: Padding(

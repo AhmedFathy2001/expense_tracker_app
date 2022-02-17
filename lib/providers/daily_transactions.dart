@@ -10,7 +10,6 @@ class DailyTransactions with ChangeNotifier {
   bool isInit = true;
   var totalPerWeek = 0.0;
   List<Transaction> _transactionsList = [];
-
   void initTransactions() async {
     final prefs = await _prefs;
     if (isInit) {
@@ -30,6 +29,7 @@ class DailyTransactions with ChangeNotifier {
         _transactionsList = [];
       }
       isInit = false;
+      notifyListeners();
     }
   }
 
@@ -190,61 +190,3 @@ class DailyTransactions with ChangeNotifier {
     notifyListeners();
   }
 }
-
-/*
-
-    Transaction(
-      id: DateTime.now().toString(),
-      title: "Bank",
-      amount: 49.99,
-      createdAt: DateTime.now().subtract(Duration(days: 6)),
-    ),
-    Transaction(
-      id: DateTime.now().toString(),
-      title: "Hospital",
-      amount: 149.99,
-      createdAt: DateTime.now().subtract(Duration(days: 6)),
-    ),
-    Transaction(
-      id: DateTime.now().toString(),
-      title: "Gift",
-      amount: 29.99,
-      createdAt: DateTime.now().subtract(Duration(days: 5)),
-    ),
-    Transaction(
-      id: DateTime.now().toString(),
-      title: "Bankr",
-      amount: 39.99,
-      createdAt: DateTime.now().subtract(Duration(days: 4)),
-    ),
-    Transaction(
-      id: DateTime.now().toString(),
-      title: "Hospital",
-      amount: 149.99,
-      createdAt: DateTime.now().subtract(Duration(days: 3)),
-    ),
-    Transaction(
-      id: DateTime.now().toString(),
-      title: "Giftt",
-      amount: 29.99,
-      createdAt: DateTime.now().subtract(Duration(days: 2)),
-    ),
-    Transaction(
-      id: DateTime.now().toString(),
-      title: "Bankk",
-      amount: 89.99,
-      createdAt: DateTime.now().subtract(Duration(days: 1)),
-    ),
-    Transaction(
-      id: DateTime.now().toString(),
-      title: "Hospitalll",
-      amount: 179.99,
-      createdAt: DateTime.now(),
-    ),
-    Transaction(
-      id: DateTime.now().toString(),
-      title: "Gifttt",
-      amount: 19.99,
-      createdAt: DateTime.now(),
-    ),
- */

@@ -41,9 +41,7 @@ class _RootAppState extends State<RootApp> {
                 Icons.add,
                 size: 25,
               ),
-              backgroundColor: Colors.pink
-              //params
-              ),
+              backgroundColor: Colors.pink),
         ),
         floatingActionButtonLocation:
             FloatingActionButtonLocation.centerDocked);
@@ -76,7 +74,6 @@ class _RootAppState extends State<RootApp> {
       onTap: (index) {
         selectedTab(index);
       },
-      //other params
     );
   }
 
