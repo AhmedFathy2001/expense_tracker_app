@@ -30,6 +30,19 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     final expense = Provider.of<DailyTransactions>(context);
+    final expenseList = widget.weekClick
+        ? expense.filterTransactionsBasedOnWeek(
+            widget.selectedMonth!, widget.selectedWeek!)
+        : [];
+    for (var tx in expenseList) {
+      print('${tx.id} .. out ${tx.title}');
+    }
+    final currentDate = DateTime.now();
+    final isFifthWeek = widget.weekClick ? widget.selectedWeek == 5 : false;
+    final weekDay = widget.weekClick ? widget.selectedWeek! * 7 : 0;
+    final lastDayOfMonth = widget.weekClick
+        ? DateTime(currentDate.year, widget.selectedMonth!, 0).day
+        : 0;
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         heroTag: widget.uniqueKey,
@@ -63,12 +76,7 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        widget.selectedWeek == 5
-                            ? DateTime(DateTime.now().year,
-                                        widget.selectedMonth!, 0)
-                                    .day -
-                                28
-                            : 7,
+                        isFifthWeek ? lastDayOfMonth - 28 : 7,
                         (index) {
                           return GestureDetector(
                             onTap: () {
@@ -84,10 +92,10 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                                   Text(
                                     DateFormat.E().format(
                                       !widget.weekClick
-                                          ? (DateTime.now()
+                                          ? (currentDate
                                               .subtract(Duration(days: index)))
                                           : DateTime(
-                                              DateTime.now().year,
+                                              currentDate.year,
                                               widget.selectedMonth!,
                                               0,
                                             ).subtract(Duration(days: index)),
@@ -114,18 +122,17 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                                         DateFormat('d').format(
                                           widget.weekClick
                                               ? (DateTime(
-                                                      DateTime.now().year,
+                                                      currentDate.year,
                                                       widget.selectedMonth!,
-                                                      (widget.selectedWeek == 5
+                                                      (isFifthWeek
                                                           ? 0
-                                                          : widget.selectedWeek! *
-                                                              7))
+                                                          : weekDay))
                                                   .subtract(
                                                   Duration(
                                                     days: index,
                                                   ),
                                                 ))
-                                              : (DateTime.now().subtract(
+                                              : (currentDate.subtract(
                                                   Duration(days: index),
                                                 )),
                                         ),
@@ -158,11 +165,11 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                 children: (widget.weekClick &&
                             expense
                                 .filteredDailyExpensesBasedOnSelectedWeek(
-                                    ((widget.selectedWeek == 5
-                                            ? (DateTime(DateTime.now().year,
+                                    ((isFifthWeek
+                                            ? (DateTime(currentDate.year,
                                                     widget.selectedMonth!, 0)
                                                 .day)
-                                            : (widget.selectedWeek! * 7)) -
+                                            : (weekDay)) -
                                         activeDay),
                                     widget.selectedMonth!,
                                     widget.selectedWeek!)
@@ -177,10 +184,10 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                       ]
                     : List.generate(
                         widget.weekClick
-                            ? ((widget.selectedWeek == 5)
+                            ? ((isFifthWeek)
                                 ? (expense
                                     .filteredDailyExpensesBasedOnSelectedWeek(
-                                        DateTime(DateTime.now().year,
+                                        DateTime(currentDate.year,
                                                     widget.selectedMonth!, 0)
                                                 .day -
                                             activeDay,
@@ -189,8 +196,7 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                                     .length)
                                 : (expense
                                     .filteredDailyExpensesBasedOnSelectedWeek(
-                                        ((widget.selectedWeek! * 7) -
-                                            activeDay),
+                                        ((weekDay) - activeDay),
                                         widget.selectedMonth!,
                                         widget.selectedWeek!)
                                     .length))
@@ -200,12 +206,11 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                             direction: DismissDirection.endToStart,
                             key: UniqueKey(),
                             onDismissed: (dismissDirection) {
+                              print(index);
+                              print(expenseList[index + 1].id);
                               widget.weekClick
-                                  ? expense.deleteTransaction(expense
-                                      .filterTransactionsBasedOnWeek(
-                                          widget.selectedMonth!,
-                                          widget.selectedWeek!)[index]
-                                      .id)
+                                  ? expense.deleteTransaction(
+                                      expenseList[index + 1].id)
                                   : expense.deleteTransaction(expense
                                       .filteredDailyExpenses(activeDay)[index]
                                       .id);
@@ -249,8 +254,7 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                                                       ? widget.selectedWeek == 5
                                                           ? expense
                                                               .filteredDailyExpensesBasedOnSelectedWeek(
-                                                                  DateTime(DateTime.now().year, widget.selectedMonth!, 0)
-                                                                          .day -
+                                                                  lastDayOfMonth -
                                                                       activeDay,
                                                                   widget
                                                                       .selectedMonth!,
@@ -288,8 +292,7 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                                                       ? widget.selectedWeek == 5
                                                           ? expense
                                                               .filteredDailyExpensesBasedOnSelectedWeek(
-                                                                  DateTime(DateTime.now().year, widget.selectedMonth!, 0)
-                                                                          .day -
+                                                                  lastDayOfMonth -
                                                                       activeDay,
                                                                   widget
                                                                       .selectedMonth!,
@@ -334,7 +337,7 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                                             MainAxisAlignment.end,
                                         children: [
                                           Text(
-                                            '\$${widget.weekClick ? expense.filteredDailyExpensesBasedOnSelectedWeek(((widget.selectedWeek == 5 ? (DateTime(DateTime.now().year, widget.selectedMonth!, 0).day - index) : (widget.selectedWeek! * 7)) - activeDay), widget.selectedMonth!, widget.selectedWeek!)[index].amount : expense.filteredDailyExpenses(activeDay)[index].amount}',
+                                            '\$${(widget.weekClick ? expense.filteredDailyExpensesBasedOnSelectedWeek(((isFifthWeek ? (lastDayOfMonth - index) : (weekDay)) - activeDay), widget.selectedMonth!, widget.selectedWeek!)[index].amount : expense.filteredDailyExpenses(activeDay)[index].amount).toStringAsFixed(2)}',
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 15,
@@ -364,11 +367,11 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
             if ((widget.weekClick &&
                     expense
                         .filteredDailyExpensesBasedOnSelectedWeek(
-                            ((widget.selectedWeek == 5
-                                    ? (DateTime(DateTime.now().year,
+                            ((isFifthWeek
+                                    ? (DateTime(currentDate.year,
                                             widget.selectedMonth!, 0)
                                         .day)
-                                    : (widget.selectedWeek! * 7)) -
+                                    : (weekDay)) -
                                 activeDay),
                             widget.selectedMonth!,
                             widget.selectedWeek!)
@@ -395,7 +398,7 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                     Padding(
                       padding: const EdgeInsets.only(top: 5, bottom: 25),
                       child: Text(
-                        "\$${widget.weekClick ? expense.totalSpentPerDay(widget.selectedMonth! - 1, ((widget.selectedWeek == 5 ? DateTime(DateTime.now().year, widget.selectedMonth!, 0).day : (widget.selectedWeek! * 7)) - activeDay)) : expense.totalSpentPerDay(DateTime.now().month, (DateTime.now().day - activeDay))}",
+                        "\$${widget.weekClick ? expense.totalSpentPerDay(widget.selectedMonth! - 1, ((isFifthWeek ? lastDayOfMonth : (weekDay)) - activeDay)) : expense.totalSpentPerDay(currentDate.month, (currentDate.day - activeDay))}",
                         style: const TextStyle(
                             fontSize: 20,
                             color: black,

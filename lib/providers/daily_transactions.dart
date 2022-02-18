@@ -12,7 +12,6 @@ class DailyTransactions with ChangeNotifier {
   List<Transaction> _transactionsList = [];
   void initTransactions() async {
     final prefs = await _prefs;
-    prefs.clear();
     if (isInit) {
       if (prefs.containsKey('transactions')) {
         for (var i = 0;
@@ -61,31 +60,39 @@ class DailyTransactions with ChangeNotifier {
   }
 
   List<Transaction> filteredDailyExpensesBasedOnSelectedWeek(
-      int currentWeekDay, int currentMonth, int currentWeek) {
+    int currentWeekDay,
+    int currentMonth,
+    int currentWeek,
+  ) {
     var totalDaysInWeek = 7;
+
     List<Transaction> filteredTxPerWeek = [];
+
     var weekDays = DateTime(
         DateTime.now().year, currentMonth - 1, (currentWeek * totalDaysInWeek));
+
     if (currentWeek == 5) {
       totalDaysInWeek = DateTime(DateTime.now().year, currentMonth, 0).day - 28;
       weekDays = DateTime(DateTime.now().year, currentMonth, 0);
     }
+
     for (var j = totalDaysInWeek - 1; j >= 0; j--) {
       for (var tx in _transactionsList) {
         if (tx.createdAt.day == weekDays.day - j &&
             tx.createdAt.month == weekDays.month &&
             tx.createdAt.year == weekDays.year) {
-          print(weekDays.day - j);
           filteredTxPerWeek.add(tx);
           totalPerWeek += tx.amount;
         }
       }
     }
+
     List<Transaction> newList = [];
+
     if (filteredTxPerWeek.isEmpty) {
-      print('empty');
       return [];
     }
+
     final weekDay =
         DateTime(DateTime.now().year, currentMonth - 1, currentWeekDay);
 
@@ -96,7 +103,7 @@ class DailyTransactions with ChangeNotifier {
         newList.add(tx);
       }
     }
-    print('${newList.length} .. list length');
+
     return newList;
   }
 
@@ -149,6 +156,7 @@ class DailyTransactions with ChangeNotifier {
         if (tx.createdAt.day == weekDays.day - j &&
             tx.createdAt.month == weekDays.month &&
             tx.createdAt.year == weekDays.year) {
+          print('${tx.id} .. in ${tx.title}');
           filteredTxPerWeek.add(tx);
           totalPerWeek += tx.amount;
         }
@@ -182,6 +190,8 @@ class DailyTransactions with ChangeNotifier {
   Future<void> deleteTransaction(String id) async {
     final prefs = await _prefs;
     try {
+      final item = _transactionsList.firstWhere((tx) => tx.id == id);
+      print('${item.id} .. delete fn ${item.title}');
       _transactionsList.removeWhere((tx) => tx.id == id);
       prefs.remove('transactions');
       prefs.setString(

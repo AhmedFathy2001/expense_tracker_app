@@ -181,21 +181,31 @@ class _StatsWidgetState extends State<StatsWidget> {
                     monthlyTransactions
                         .getWeeksOfMonth(activeMonth - date.month), (index) {
                   return GestureDetector(
-                    onTap: () {
-                      final currentMonthNum = activeMonth - date.month;
-                      setState(() {
-                        monthlyTransactions.filterTransactionsBasedOnWeek(
-                            currentMonthNum, index + 1);
-                      });
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (ctx) => DailyTransactionPage(
-                                title: 'Week ${index + 1}',
-                                weekClick: true,
-                                uniqueKey: 'key2',
-                                selectedWeek: index + 1,
-                                selectedMonth: currentMonthNum,
-                              )));
-                    },
+                    onTap: (index + 1 == 5)
+                        ? () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'No extra details to show for this week'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        : () {
+                            final currentMonthNum = activeMonth - date.month;
+                            setState(() {
+                              monthlyTransactions.filterTransactionsBasedOnWeek(
+                                  currentMonthNum, index + 1);
+                            });
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (ctx) => DailyTransactionPage(
+                                      title: 'Week ${index + 1}',
+                                      weekClick: true,
+                                      uniqueKey: 'key2',
+                                      selectedWeek: index + 1,
+                                      selectedMonth: currentMonthNum,
+                                    )));
+                          },
                     child: Container(
                       width: (size.width - 60) / 2,
                       height: 170,
