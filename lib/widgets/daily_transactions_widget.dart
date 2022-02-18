@@ -203,17 +203,14 @@ class _DailyTransactionWidgetState extends State<DailyTransactionWidget> {
                             : expense.filteredDailyExpenses(activeDay).length,
                         (index) {
                           return Dismissible(
-                            direction: DismissDirection.endToStart,
+                            direction: widget.weekClick
+                                ? DismissDirection.none
+                                : DismissDirection.endToStart,
                             key: UniqueKey(),
                             onDismissed: (dismissDirection) {
-                              print(index);
-                              print(expenseList[index + 1].id);
-                              widget.weekClick
-                                  ? expense.deleteTransaction(
-                                      expenseList[index + 1].id)
-                                  : expense.deleteTransaction(expense
-                                      .filteredDailyExpenses(activeDay)[index]
-                                      .id);
+                              expense.deleteTransaction(expense
+                                  .filteredDailyExpenses(activeDay)[index]
+                                  .id);
                             },
                             background: Container(
                               margin: const EdgeInsets.symmetric(

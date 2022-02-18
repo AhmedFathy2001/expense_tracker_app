@@ -190,8 +190,6 @@ class DailyTransactions with ChangeNotifier {
   Future<void> deleteTransaction(String id) async {
     final prefs = await _prefs;
     try {
-      final item = _transactionsList.firstWhere((tx) => tx.id == id);
-      print('${item.id} .. delete fn ${item.title}');
       _transactionsList.removeWhere((tx) => tx.id == id);
       prefs.remove('transactions');
       prefs.setString(
